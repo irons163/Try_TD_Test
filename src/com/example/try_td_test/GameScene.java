@@ -1,47 +1,32 @@
 package com.example.try_td_test;
 
 import java.util.HashMap;
-import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PointF;
-import android.graphics.Paint.Style;
-import android.graphics.RectF;
-import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Align;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore.Audio;
-import android.provider.SyncStateContract.Helpers;
+import android.graphics.Paint.Style;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.try_gameengine.action.MAction;
+import com.example.try_gameengine.action.MAction.MActionBlock;
 import com.example.try_gameengine.action.MAction2;
 import com.example.try_gameengine.action.MathUtil;
 import com.example.try_gameengine.action.MovementAction;
-import com.example.try_gameengine.action.MovementActionInfo;
-import com.example.try_gameengine.action.MovementActionItemBaseReugularFPS;
 import com.example.try_gameengine.action.MovementAtionController;
-import com.example.try_gameengine.action.MAction.MActionBlock;
 import com.example.try_gameengine.action.listener.IActionListener;
 import com.example.try_gameengine.avg.GraphicsUtils;
 import com.example.try_gameengine.framework.ALayer;
-import com.example.try_gameengine.framework.ALayer.LayerParam;
 import com.example.try_gameengine.framework.ButtonLayer;
-import com.example.try_gameengine.framework.ButtonLayer.OnClickListener;
 import com.example.try_gameengine.framework.GameModel;
 import com.example.try_gameengine.framework.GameView;
 import com.example.try_gameengine.framework.IGameController;
@@ -50,7 +35,6 @@ import com.example.try_gameengine.framework.ILayer;
 import com.example.try_gameengine.framework.LabelLayer;
 import com.example.try_gameengine.framework.Layer;
 import com.example.try_gameengine.framework.LayerManager;
-import com.example.try_gameengine.framework.LightImage;
 import com.example.try_gameengine.framework.Sprite;
 import com.example.try_gameengine.framework.StatusBar;
 import com.example.try_gameengine.map.Field2D;
@@ -63,8 +47,6 @@ import com.example.try_gameengine.utils.IDetectAreaRequest;
 import com.example.try_gameengine.utils.ISpriteDetectAreaListener;
 import com.example.try_gameengine.utils.SpriteDetectAreaHandler;
 import com.example.try_gameengine.utils.SpriteDetectAreaHelper;
-
-
 
 public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 	private int selectTurret = -1;
@@ -86,19 +68,11 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 	 * 
 	 */
 	class Bullet extends Actor {
-
 		private float dir;
-
 		private int damage;
-
-		private float x, y;
-
 		private boolean removeFlag;
-		
 		private GameTimeUtil gameTimeUtil;
-		
 		private float speed = 10;
-
 		ILayer targetLayer;
 		float targetX; 
 		float targetY;
@@ -114,7 +88,7 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 			DetectArea a = new DetectAreaSpriteRect(new RectF(), new DetectAreaSpriteRect.SpriteRectListener() {
 				
 				@Override
-				public RectF caculateSpriteRect() {
+				public RectF calculateSpriteRect() {
 					// TODO Auto-generated method stub
 					RectF rectF;
 					if(getLocationInScene()!=null)
@@ -125,7 +99,7 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 				}
 				
 				@Override
-				public PointF caculateSpriteCenter() {
+				public PointF calculateSpriteCenter() {
 					// TODO Auto-generated method stub;
 					PointF pointF;
 					if(getLocationInScene()!=null)
@@ -184,8 +158,9 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 		}
 		
 		protected void addLayer(ALayer layer) {
-			this.x = this.getX();
-			this.y = this.getY();
+//			this.x = this.getX();
+//			this.y = this.getY();
+			setPosition(layer.getWidth()/2, layer.getHeight()/2);
 		}
 
 		public void action(long t) {
@@ -215,8 +190,7 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 			
 
 			
-			boolean didDealWillLayer = LayerManager.iterateAllLayers(new LayerManager.IterateLayersListener() {
-				int x, y;
+			boolean didDealWillLayer = LayerManager.getInstance().iterateAllLayers(new LayerManager.IterateLayersListener() {
 				
 				@Override
 				public boolean dealWithLayer(ILayer layer) {
@@ -377,6 +351,8 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 
 			spriteDetectAreaHandler.apply();
 			setSpriteDetectAreaHandler(spriteDetectAreaHandler);
+			
+			setRotationType(RotationType.ROTATE_WITH_CENTER);
 		}
 		
 		@Override
@@ -473,7 +449,7 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 			if(!gameTimeUtil.isArriveExecuteTime())
 				return;
 			
-			LayerManager.iterateAllLayers(new LayerManager.IterateLayersListener() {
+			LayerManager.getInstance().iterateAllLayers(new LayerManager.IterateLayersListener() {
 				
 				@Override
 				public boolean dealWithLayer(ILayer layer) {
@@ -556,6 +532,8 @@ public class GameScene extends EasyScene implements ButtonLayer.OnClickListener{
 			this.hp = hp;
 			
 			addChild(hpBar);
+			
+			setRotationType(RotationType.ROTATE_WITH_CENTER);
 		}
 
 		@Override
@@ -1363,7 +1341,7 @@ public void downAndUp(final Sprite sprite,float down, float downTime, float up, 
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onSceneTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
 		if(event.getAction()==MotionEvent.ACTION_DOWN){
 			if (isLose) {
@@ -1375,18 +1353,10 @@ public void downAndUp(final Sprite sprite,float down, float downTime, float up, 
 	            isReadyToJump = true;
 	        }
 		}
-		LayerManager.onTouchLayers(event);
-		return true;
+		return super.onSceneTouchEvent(event);
 	}
 	
 	private void checkGameOver(){
-//	    if (panda.getX() + panda.w < 0 || panda.getY() > CommonUtil.screenHeight) {
-//		    System.out.println("game over");
-//		    myLabel.setText("game over");
-//		    AudioUtil.playDead();
-//		    isLose = true;
-//		    AudioUtil.stopBackgroundMusic();
-//	    }
 	}
 	
 	public void reSet(){
@@ -1410,7 +1380,7 @@ public void downAndUp(final Sprite sprite,float down, float downTime, float up, 
 		if (isLose) {
 			//do nothing
         }else{
-        	LayerManager.processLayers();
+        	LayerManager.getInstance().processLayers();
         	
            
             distance += moveSpeed;
@@ -1455,7 +1425,7 @@ public void downAndUp(final Sprite sprite,float down, float downTime, float up, 
 	@Override
 	public void doDraw(Canvas canvas) {
 		// TODO Auto-generated method stub
-		LayerManager.drawLayers(canvas, null);
+		LayerManager.getInstance().drawLayers(canvas, null);
 		
 //		fight.drawSelf(canvas, null);
 	}
